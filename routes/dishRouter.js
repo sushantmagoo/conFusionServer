@@ -55,9 +55,9 @@ dishRouter.route('/:dishId')
     .catch((err) => next(err));
 })
 .post((req, res, next) => {
-    console.log('POST operation not supported on /dishes/' + req.params.dishId);
+    console.log('POST operation not supported on /dishes');
     res.statusCode = 403;
-    res.end('POST operation not supported on /dishes/' + req.params.dishId);
+    res.end('POST operation not supported on /dishes');
 })
 .put((req, res, next) => {
     Dishes.findByIdAndUpdate(req.params.dishId, {$set: req.body}, {new: true})
