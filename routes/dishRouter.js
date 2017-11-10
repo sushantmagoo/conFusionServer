@@ -11,6 +11,8 @@ dishRouter.route('/')
 .get((req,res,next) => {
     Dishes.find({})
     .then((dishes) => {
+        console.log(req.headers);
+        console.log(req.headers.authorization);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(dishes);
