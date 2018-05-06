@@ -13,7 +13,7 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // Creates JSON Token and returns to User
-exports.getToken = function(user) {
+exports.getToken = user => {
   return jwt.sign(user, config.secretKey, { expiresIn: 3600 });
 };
 
@@ -24,7 +24,6 @@ opts.secretOrKey = config.secretKey;
 // Checks the JSON token is authentic
 exports.jwtPassport = passport.use(
   new JwtStrategy(opts, (jwt_payload, done) => {
-    console.log('JWT', jwt_payload);
     User.findOne({ _id: jwt_payload._id }, (err, user) => {
       if (err) {
         return done(err, false);
@@ -36,5 +35,39 @@ exports.jwtPassport = passport.use(
   })
 );
 
-// Calls the previous step (exports.jwtPassport) || to be used in Routes
+// Calls the previous step (exports.jwtPassport) | to be used in Routes
 exports.verifyUser = passport.authenticate('jwt', { session: false });
+
+// #############################################################################
+// Above function can also be implemented this way
+// exports.verifyUser = function(req, res, next) {
+//   var token =
+//     req.body.token || req.query.token || req.headers['x-access-token'];
+//   if (token) {
+//     jwt.verify(token, config.secretKey, function(err, decoded) {
+//       if (err) {
+//         var err = new Error('You are not authenticated!');
+//         err.status = 401;
+//         return next(err);
+//       } else {
+//         req.decoded = decoded;
+//         next();
+//       }
+//     });
+//   } else {
+//     var err = new Error('No token provided!');
+//     err.status = 403;
+//     return next(err);
+//   }
+// };
+// #############################################################################
+
+// Checks whether user is admin or not
+exports.verifyAdmin = (req, res, next) => {
+  if (req.user.admin) {
+    return next();
+  }
+  var err = new Error('unauthorized');
+  err.status = 403;
+  next(err);
+};

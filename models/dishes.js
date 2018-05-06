@@ -17,8 +17,8 @@ var commentSchema = new Schema(
       required: true
     },
     author: {
-      type: String,
-      required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     }
   },
   {
@@ -67,7 +67,7 @@ var dishSchema = new Schema(
 );
 
 //DishCollection is name of Collection,
-//Its plural 'dishcollections' (all in lowercase) will be used to name collection.
+//Its plural 'dishcollections' (all in lowercase) will be used to name MongoDB collection.
 var DishesModel = mongoose.model('DishCollection', dishSchema);
 //Name of Model we are exporting to be used outside.
 module.exports = DishesModel;
