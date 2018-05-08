@@ -2,12 +2,10 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var session = require('express-session');
-var FileStore = require('session-file-store')(session);
-
 var passport = require('passport');
+var mongoose = require('mongoose');
+
 var config = require('./config');
 
 var index = require('./routes/index');
@@ -17,10 +15,8 @@ var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
 var uploadRouter = require('./routes/uploadRouter');
 
-var mongoose = require('mongoose');
 var mongoUrl = config.mongoUrl;
 mongoose.Promise = require('bluebird');
-
 var connect = mongoose.connect(mongoUrl, {
   useMongoClient: true
 });

@@ -1,16 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const Leaders = require('../models/leaders');
 const authenticate = require('../authenticate');
-
+const cors = require('./cors');
 const leaderRouter = express.Router();
 
 leaderRouter.use(bodyParser.json());
 
 leaderRouter
   .route('/')
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
+  .get(cors.cors, (req, res, next) => {
     Leaders.find({})
       .then(
         ldrs => {
@@ -23,25 +25,36 @@ leaderRouter
       )
       .catch(err => next(err));
   })
-  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    Leaders.create(req.body)
-      .then(
-        ldr => {
-          console.log(ldr);
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json(ldr);
-        },
-        err => next(err)
-      )
-      .catch(err => next(err));
-  })
-  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    console.log('PUT operation not supported on /leaders');
-    res.statusCode = 403;
-    res.end('PUT operation not supported on /leaders');
-  })
+  .post(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Leaders.create(req.body)
+        .then(
+          ldr => {
+            console.log(ldr);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(ldr);
+          },
+          err => next(err)
+        )
+        .catch(err => next(err));
+    }
+  )
+  .put(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      console.log('PUT operation not supported on /leaders');
+      res.statusCode = 403;
+      res.end('PUT operation not supported on /leaders');
+    }
+  )
   .delete(
+    cors.corsWithOptions,
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
@@ -60,7 +73,10 @@ leaderRouter
 
 leaderRouter
   .route('/:leaderId')
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => {
+    res.sendStatus(200);
+  })
+  .get(cors.cors, (req, res, next) => {
     Leaders.findById(req.params.leaderId)
       .then(
         ldr => {
@@ -73,29 +89,40 @@ leaderRouter
       )
       .catch(err => next(err));
   })
-  .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    console.log('POST operation not supported on /leaders');
-    res.statusCode = 403;
-    res.end('POST operation not supported on /leaders');
-  })
-  .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    Leaders.findByIdAndUpdate(
-      req.params.leaderId,
-      { $set: req.body },
-      { new: true }
-    )
-      .then(
-        ldr => {
-          console.log(ldr);
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.json(ldr);
-        },
-        err => next(err)
+  .post(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      console.log('POST operation not supported on /leaders');
+      res.statusCode = 403;
+      res.end('POST operation not supported on /leaders');
+    }
+  )
+  .put(
+    cors.corsWithOptions,
+    authenticate.verifyUser,
+    authenticate.verifyAdmin,
+    (req, res, next) => {
+      Leaders.findByIdAndUpdate(
+        req.params.leaderId,
+        { $set: req.body },
+        { new: true }
       )
-      .catch(err => next(err));
-  })
+        .then(
+          ldr => {
+            console.log(ldr);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(ldr);
+          },
+          err => next(err)
+        )
+        .catch(err => next(err));
+    }
+  )
   .delete(
+    cors.corsWithOptions,
     authenticate.verifyUser,
     authenticate.verifyAdmin,
     (req, res, next) => {
