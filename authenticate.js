@@ -7,6 +7,7 @@ var ExtractJwt = require('passport-jwt').ExtractJwt;
 var JwtStrategy = require('passport-jwt').Strategy;
 
 var config = require('./config');
+var FacebookTokenStrategy = require('passport-facebook-token');
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -71,3 +72,35 @@ exports.verifyAdmin = (req, res, next) => {
   err.status = 403;
   next(err);
 };
+
+exports.facebookPassport = passport.use(
+  new FacebookTokenStrategy(
+    {
+      clientID: config.facebook.clientId,
+      clientSecret: config.facebook.clientSecret
+    },
+    (accessToken, refreshToken, profile, done) => {
+      User.findOne({ facebookId: profile.id }, (err, user) => {
+        console.log(profile);
+        if (err) {
+          return done(err, false);
+        }
+        if (!err && user != null) {
+          return done(null, user);
+        } else {
+          user = new User({ username: profile.displayName });
+          user.facebookId = profile.id;
+          user.firstName = profile.name.givenName;
+          user.lastName = profile.name.familyName;
+          user.save((err, user) => {
+            if (err) {
+              return done(err, false);
+            } else {
+              return done(null, user);
+            }
+          });
+        }
+      });
+    }
+  )
+);
